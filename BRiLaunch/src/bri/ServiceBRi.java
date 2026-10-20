@@ -2,42 +2,44 @@ package bri;
 
 
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 import java.net.*;
 
 
-public class ServeurBRi implements Runnable {
-	private ServerSocket listen_socket;
+class ServiceBRi implements Runnable {
 	
-	// Cree un serveur TCP - objet de la classe ServerSocket
-	public ServeurBRi(int port) {
-		try {
-			listen_socket = new ServerSocket(port);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+	private Socket client;
+	
+	ServiceBRi(Socket socket) {
+		client = socket;
 	}
 
-	// Le serveur ecoute et accepte les connections.
-	// pour chaque connection, il cree un ServiceInversion, 
-	// qui va la traiter.
 	public void run() {
-		try {
-			while(true)
-				new ServiceBRi(listen_socket.accept()).start();
-		}
-		catch (IOException e) { 
-			try {this.listen_socket.close();} catch (IOException e1) {}
-			System.err.println("Pb sur le port d'écoute :"+e);
-		}
-	}
+		try {BufferedReader in = new BufferedReader (new InputStreamReader(client.getInputStream ( )));
+			PrintWriter out = new PrintWriter (client.getOutputStream ( ), true);
+			out.println(ServiceRegistry.toStringue()+"##Tapez le numéro de service désiré :");
+			int choix = Integer.parseInt(in.readLine());
+			Class<? extends Service> classe = ServiceRegistry.getServiceClass(choix);
 
-	 // restituer les ressources --> finalize
+			Service service = classe.getConstructor(Socket.class).newInstance(client);
+			
+			service.service();
+				
+			}
+		catch (IOException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+			//Fin du service
+		}
+
+		try {client.close();} catch (IOException e2) {}
+	}
+	
 	protected void finalize() throws Throwable {
-		try {this.listen_socket.close();} catch (IOException e1) {}
+		 client.close(); 
 	}
 
-	// lancement du serveur
-	public void lancer() {
+	// lancement du service
+	public void start() {
 		(new Thread(this)).start();		
 	}
+
 }
