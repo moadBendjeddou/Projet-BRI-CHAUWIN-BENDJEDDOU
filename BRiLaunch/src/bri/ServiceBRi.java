@@ -1,45 +1,67 @@
-package bri;
 
+package bri;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.net.*;
 
-
 class ServiceBRi implements Runnable {
-	
+
 	private Socket client;
-	
+
 	ServiceBRi(Socket socket) {
 		client = socket;
 	}
 
+	@Override
 	public void run() {
-		try {BufferedReader in = new BufferedReader (new InputStreamReader(client.getInputStream ( )));
-			PrintWriter out = new PrintWriter (client.getOutputStream ( ), true);
-			out.println(ServiceRegistry.toStringue()+"##Tapez le numéro de service désiré :");
+		try {
+			BufferedReader in = new BufferedReader(
+					new InputStreamReader(client.getInputStream())
+			);
+
+			PrintWriter out = new PrintWriter(
+					client.getOutputStream(), true
+			);
+
+			out.println(ServiceRegistry.toStringue()
+					+ "##Tapez le numéro de service désiré :");
+
 			int choix = Integer.parseInt(in.readLine());
-			Class<? extends Service> classe = ServiceRegistry.getServiceClass(choix);
 
-			Service service = classe.getConstructor(Socket.class).newInstance(client);
-			
-			service.service();
-				
+			Class<?> classe = ServiceRegistry.getServiceClass(choix);
+
+			if (classe == null) {
+				out.println("Choix invalide.");
+				return;
 			}
-		catch (IOException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-			//Fin du service
+
+			Service service = (Service) classe
+					.getConstructor(Socket.class)
+					.newInstance(client);
+
+			service.run();
+
+		} catch (IOException | InstantiationException
+				 | IllegalAccessException
+				 | IllegalArgumentException
+				 | InvocationTargetException
+				 | NoSuchMethodException
+				 | SecurityException e) {
+
+			e.printStackTrace();
+
+		} finally {
+			try {
+				client.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
-
-		try {client.close();} catch (IOException e2) {}
-	}
-	
-	protected void finalize() throws Throwable {
-		 client.close(); 
 	}
 
-	// lancement du service
+	// Lancement du service
 	public void start() {
-		(new Thread(this)).start();		
+		new Thread(this).start();
 	}
-
 }

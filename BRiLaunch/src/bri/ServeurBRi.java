@@ -1,43 +1,59 @@
+
 package bri;
 
-
-import java.io.*;
-import java.net.*;
-
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 public class ServeurBRi implements Runnable {
+
+	private final int port;
 	private ServerSocket listen_socket;
-	
-	// Cree un serveur TCP - objet de la classe ServerSocket
+
 	public ServeurBRi(int port) {
-		try {
-			listen_socket = new ServerSocket(port);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		this.port = port;
 	}
 
-	// Le serveur ecoute et accepte les connections.
-	// pour chaque connection, il cree un ServiceInversion, 
-	// qui va la traiter.
+	@Override
 	public void run() {
 		try {
-			while(true)
-				new ServiceBRi(listen_socket.accept()).start();
-		}
-		catch (IOException e) { 
-			try {this.listen_socket.close();} catch (IOException e1) {}
-			System.err.println("Pb sur le port d'écoute :"+e);
+			listen_socket = new ServerSocket(port);
+
+			System.out.println(
+					"Serveur BRi en écoute sur le port " + port
+			);
+
+			while (!listen_socket.isClosed()) {
+				Socket client = listen_socket.accept();
+
+				System.out.println(
+						"Nouvelle connexion sur le port " + port
+				);
+
+				new ServiceBRi(client).start();
+			}
+
+		} catch (IOException e) {
+			if (listen_socket == null || !listen_socket.isClosed()) {
+				e.printStackTrace();
+			}
 		}
 	}
 
-	 // restituer les ressources --> finalize
-	protected void finalize() throws Throwable {
-		try {this.listen_socket.close();} catch (IOException e1) {}
-	}
-
-	// lancement du serveur
+	// Démarre le serveur dans un thread indépendant.
 	public void lancer() {
-		(new Thread(this)).start();		
+		Thread thread = new Thread(this);
+		thread.start();
+	}
+
+	// Arrête proprement le serveur.
+	public void fermer() {
+		try {
+			if (listen_socket != null && !listen_socket.isClosed()) {
+				listen_socket.close();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

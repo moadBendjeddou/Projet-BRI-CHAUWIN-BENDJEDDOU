@@ -1,55 +1,61 @@
+
 package client;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-/*
- * Ce client se connecte à un serveur dont le protocole est 
- * menu-choix-question-réponse client-réponse service
- * il n'y a qu'un échange (pas de boucle)
- * la réponse est saisie au clavier en String
- * 
- * Le protocole d'échange est suffisant pour le tp4 avec ServiceInversion 
- * ainsi que tout service qui pose une question, traite la donnée du client et envoie sa réponse 
- * mais est bien sur susceptible de (nombreuses) améliorations
- */
-class Application {
-		private final static int PORT_SERVICE = 3000;
-		private final static String HOST = "localhost"; 
-	
-	public static void main(String[] args) {
-		Socket s = null;		
-		try {
-			s = new Socket(HOST, PORT_SERVICE);
+public class Application {
 
-			BufferedReader sin = new BufferedReader (new InputStreamReader(s.getInputStream ( )));
-			PrintWriter sout = new PrintWriter (s.getOutputStream ( ), true);
-			BufferedReader clavier = new BufferedReader(new InputStreamReader(System.in));			
-		
-			System.out.println("Connecté au serveur " + s.getInetAddress() + ":"+ s.getPort());
-			
-			String line;
-		// menu et choix du service
-			line = sin.readLine();
-			System.out.println(line.replaceAll("##", "\n"));
-		// saisie/envoie du choix
-			sout.println(clavier.readLine());
-			
-		// réception/affichage de la question
-			System.out.println(sin.readLine());
-		// saisie clavier/envoie au service de la réponse
-			sout.println(clavier.readLine());
-		// réception/affichage de la réponse
-			System.out.println(sin.readLine());
-				
-			
+	private static final int PORT_SERVICE = 3000;
+	private static final String HOST = "localhost";
+
+	public static void main(String[] args) {
+
+		try (
+				Socket socket = new Socket(HOST, PORT_SERVICE);
+
+				BufferedReader in = new BufferedReader(
+						new InputStreamReader(socket.getInputStream())
+				);
+
+				PrintWriter out = new PrintWriter(
+						socket.getOutputStream(), true
+				);
+
+				BufferedReader clavier = new BufferedReader(
+						new InputStreamReader(System.in)
+				)
+		) {
+
+			// Affichage du menu envoyé par le serveur.
+			String menu = in.readLine();
+			System.out.println(menu);
+
+			// Saisie du numéro de service.
+			System.out.print("Votre choix : ");
+			String choix = clavier.readLine();
+
+			out.println(choix);
+
+			// Affichage de la demande du service.
+			String demande = in.readLine();
+			System.out.println(demande);
+
+			// Saisie du texte à traiter.
+			System.out.print("> ");
+			String texte = clavier.readLine();
+
+			out.println(texte);
+
+			// Affichage du résultat.
+			String resultat = in.readLine();
+			System.out.println("Résultat : " + resultat);
+
+		} catch (Exception e) {
+			System.err.println("Erreur de connexion au serveur.");
+			e.printStackTrace();
 		}
-		catch (IOException e) { System.err.println("Fin de la connexion"); }
-		// Refermer dans tous les cas la socket
-		try { if (s != null) s.close(); } 
-		catch (IOException e2) { ; }		
 	}
 }
