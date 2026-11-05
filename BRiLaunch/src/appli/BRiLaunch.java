@@ -2,9 +2,8 @@
 package appli;
 
 import bri.ServeurBRi;
-import bri.ServeurProgrammer;
-import bri.ServiceRegistry;
-
+import bri.programmeur.ServeurProgrammer;
+import bri.service.ServiceRegistry;
 import examples.ServiceInversion;
 import examples.ServiceMajuscules;
 import examples.ServiceMinuscules;

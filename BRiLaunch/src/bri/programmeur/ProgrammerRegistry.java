@@ -1,5 +1,5 @@
 
-package bri;
+package bri.programmeur;
 
 import java.util.HashMap;
 import java.util.Map;

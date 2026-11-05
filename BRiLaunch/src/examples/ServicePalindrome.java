@@ -1,13 +1,13 @@
 
 package examples;
 
-import bri.Service;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.IOException;
 import java.net.Socket;
+
+import bri.service.Service;
 
 public class ServicePalindrome implements Service {
 

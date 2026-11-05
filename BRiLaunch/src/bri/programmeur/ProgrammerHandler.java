@@ -1,5 +1,5 @@
 
-package bri;
+package bri.programmeur;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -28,10 +28,10 @@ public class ProgrammerHandler implements Runnable {
                 )
         ) {
 
-            out.println("=== Espace Programmeur ===");
-            out.println("1 - Créer un compte");
-            out.println("2 - Se connecter");
-            out.println("Votre choix :");
+            out.println("=== Espace Programmeur ==="
+            		+ "##1 - Créer un compte"
+            		+ "##2 - Se connecter"
+            		+ "##Votre choix :");
 
             String choix = in.readLine();
 

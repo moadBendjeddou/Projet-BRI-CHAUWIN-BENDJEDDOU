@@ -1,4 +1,4 @@
-package bri;
+package bri.service;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;

@@ -1,5 +1,5 @@
 
-package bri;
+package bri.programmeur;
 
 import java.io.IOException;
 import java.net.ServerSocket;

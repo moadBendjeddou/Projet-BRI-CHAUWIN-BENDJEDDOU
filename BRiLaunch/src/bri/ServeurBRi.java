@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import bri.service.ServiceBRi;
+
 public class ServeurBRi implements Runnable {
 
 	private final int port;
